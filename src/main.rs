@@ -1,6 +1,5 @@
 use std::env;
 mod binary;
-use prefix_sum::summable::Summable;
 
 use binary::BinaryCounter;
 use std::fs::File;
@@ -12,15 +11,19 @@ fn main() {
     let filename = &args[1];
     let len = args[2].parse::<usize>().unwrap();
     let mut diag_counter = BinaryCounter::new(len);
-    if let Ok(lines) = read_lines(filename) {
-        // Consumes the iterator, returns an (Optional) String
-        for line in lines {
-            if let Ok(reading) = line {
-                diag_counter = diag_counter.add_reading(reading);
+    for i in 0..len {
+        diag_counter.set_current_index(i);
+        if let Ok(lines) = read_lines(filename) {
+            // Consumes the iterator, returns an (Optional) String
+            for line in lines {
+                if let Ok(reading) = line {
+                    diag_counter.reading_update(reading, i);
+                }
             }
         }
+        diag_counter.calculate_patterns()
     }
-    println!("Total power consumption is {}", diag_counter.power_consumption());
+    println!("Total life support rating is {}", diag_counter.life_support_rating());
 }
 
 // The output is wrapped in a Result to allow matching on errors
