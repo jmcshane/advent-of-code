@@ -1,7 +1,7 @@
 use std::env;
-mod binary;
+mod bingo;
 
-use binary::BinaryCounter;
+use bingo::Board;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
@@ -9,21 +9,43 @@ use std::path::Path;
 fn main() {
     let args: Vec<String> = env::args().collect();
     let filename = &args[1];
-    let len = args[2].parse::<usize>().unwrap();
-    let mut diag_counter = BinaryCounter::new(len);
-    for i in 0..len {
-        diag_counter.set_current_index(i);
-        if let Ok(lines) = read_lines(filename) {
-            // Consumes the iterator, returns an (Optional) String
-            for line in lines {
-                if let Ok(reading) = line {
-                    diag_counter.reading_update(reading, i);
+    let mut boards: Vec<Board> = Vec::new();
+    let mut input: String = String::from("");
+    let mut board_index = 0;
+    let mut current_board = bingo::Board::new();
+    if let Ok(lines) = read_lines(filename) {
+        // Consumes the iterator, returns an (Optional) String
+        for (i, line) in lines.enumerate() {
+            if let Ok(input_line) = line {
+                if i == 0 {
+                    input.push_str(&input_line);
+                } else if i % 6 == 1 && i != 1 {
+                    board_index = board_index + 1;
+                } else if i % 6 == 2 {
+                    boards.push(current_board);
+                    current_board = bingo::Board::new();
+                }
+                if i > 1 && i % 6 != 1 {
+                    boards[board_index].add_line(input_line)
                 }
             }
         }
-        diag_counter.calculate_patterns()
     }
-    println!("Total life support rating is {}", diag_counter.life_support_rating());
+
+    for called_number in input.split(",") {
+        let mut complete = false;
+        for i in 0..board_index {
+            let has_won = boards[i].call_number(called_number.to_string());
+            if has_won {
+                boards[i].print_win_output(called_number.to_string());
+                complete = true;
+                break;
+            }
+        }
+        if complete {
+            break;
+        }
+    }
 }
 
 // The output is wrapped in a Result to allow matching on errors
