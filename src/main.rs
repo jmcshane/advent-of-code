@@ -29,6 +29,21 @@ fn main() {
                     for i in gen_range(left.x, right.x) {
                         grid[i][right.y] = grid[i][right.y] + 1;
                     }
+                } else if (i32::try_from(left.x).unwrap() - i32::try_from(right.x).unwrap()).abs() == (i32::try_from(left.y).unwrap() - i32::try_from(right.y).unwrap()).abs() {
+                    let diff = (i32::try_from(left.x).unwrap() - i32::try_from(right.x).unwrap()).abs();
+                    for i in 0..=diff {
+                        let index_add = usize::try_from(i).unwrap();
+                        let x_val = match left.x > right.x {
+                            true => left.x - index_add,
+                            false => left.x + index_add,
+                        };
+                        let y_val = match left.y > right.y {
+                            true => left.y - index_add,
+                            false => left.y + index_add,
+                        };
+                        grid[x_val][y_val] = grid[x_val][y_val] + 1;
+                    }
+
                 }
             }
         }
