@@ -8,7 +8,7 @@ use std::num;
 fn main() {
     let args: Vec<String> = env::args().collect();
     let filename = &args[1];
-    let mut input : Vec<i32> = vec![0;7];
+    let mut input : Vec<i64> = vec![0;7];
     if let Ok(lines) = read_lines(filename) {
         // Consumes the iterator, returns an (Optional) String
         for (_, line) in lines.enumerate() {
@@ -27,27 +27,18 @@ fn main() {
     // 4-> 1034
     // 5-> 950
     // 6 -> 905
-    let mut fish_counter = vec![0];
-    for i in 0..80 {
-        let mut new_fish = 0;
-        for regen in fish_counter.iter_mut() {
-            if *regen == 0 {
-                new_fish+= 1;
-                *regen = 6;
-            } else {
-                *regen = *regen - 1;
-            }
-        }
-        for _ in 0..new_fish {
-            fish_counter.push(8);
-        }
-        if i > 72 {
-            input[79-i] = input[79-i] * i32::try_from(fish_counter.len()).unwrap();
-            println!("there are {} fish on day {}", fish_counter.len(), i);
+    let mut fish_counter = vec![0;9];
+    fish_counter[0] = 1;
+    for i in 0..256 {
+        fish_counter.rotate_left(1);
+        fish_counter[6] += fish_counter[8];
+        if i > 248 {
+            input[255-i] = input[255-i] * fish_counter.iter().sum::<i64>();
+            println!("there are {} fish on day {}", fish_counter.iter().sum::<i64>(), i);
         }
     }
     println!("{:?}", input);
-    println!("{}", input.iter().sum::<i32>());
+    println!("{}", input.iter().sum::<i64>());
 }
 
 fn gen_range(first: usize, second: usize) -> std::ops::RangeInclusive<usize> {
