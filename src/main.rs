@@ -1,54 +1,65 @@
 use std::env;
-mod bingo;
-
-use bingo::Board;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
+use grid::*;
+use std::num;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     let filename = &args[1];
-    let mut boards: Vec<Board> = Vec::new();
-    let mut input: String = String::from("");
-    let mut board_index = 0;
-    let mut current_board = bingo::Board::new();
+    let max = args[2].parse::<usize>().unwrap();
+    let mut grid = Grid::from_vec(vec![0;max*max], max);
+    println!("Grid size is {:?}", grid.size());
+    for i in std::ops::RangeInclusive::new(122, 120) {
+        println!("I is {}", i);
+    }
     if let Ok(lines) = read_lines(filename) {
         // Consumes the iterator, returns an (Optional) String
-        for (i, line) in lines.enumerate() {
+        for (_, line) in lines.enumerate() {
             if let Ok(input_line) = line {
-                if i == 0 {
-                    input.push_str(&input_line);
-                } else if i % 6 == 1 && i != 1 {
-                    board_index = board_index + 1;
-                } else if i % 6 == 2 {
-                    boards.push(current_board);
-                    current_board = bingo::Board::new();
-                }
-                if i > 1 && i % 6 != 1 {
-                    boards[board_index].add_line(input_line)
+                let two_sides : Vec<&str>= input_line.split("->").collect();
+                let left = read_point(two_sides[0].trim());
+                let right = read_point(two_sides[1].trim());
+                if left.x == right.x {
+                    for i in gen_range(left.y, right.y) {
+                        grid[right.x][i] = grid[right.x][i] + 1;
+                    }
+                } else if left.y == right.y {
+                    for i in gen_range(left.x, right.x) {
+                        grid[i][right.y] = grid[i][right.y] + 1;
+                    }
                 }
             }
         }
     }
+    let mut count = 0;
+    for i in 0..max {
+        for j in 0..max {
+            if grid[i][j] > 1 {
+                count = count + 1;
+            }
+        }
+    }
+    println!("Avoid {} spaces", count);
+}
 
-    let mut completed_boards = 0;
-    for called_number in input.split(",") {
-        let mut complete = false;
-        for i in 0..board_index {
-            let has_won = boards[i].call_number(called_number.to_string());
-            if has_won {
-                completed_boards = completed_boards + 1;
-                if completed_boards == board_index {
-                    boards[i].print_win_output(called_number.to_string());
-                    complete = true
-                }
-            }
-        }
-        if complete {
-            break;
-        }
+fn gen_range(first: usize, second: usize) -> std::ops::RangeInclusive<usize> {
+    if first > second {
+        return std::ops::RangeInclusive::new(second, first);
+    } else {
+        return std::ops::RangeInclusive::new(first, second);
     }
+}
+
+struct Point {
+    x: usize,
+    y: usize
+}
+
+fn read_point(input: &str) -> Point {
+    let two_sides : Vec<&str>= input.split(",").collect();
+    return Point{x: two_sides[0].parse::<usize>().unwrap(), y: two_sides[1].parse::<usize>().unwrap()}
 }
 
 // The output is wrapped in a Result to allow matching on errors
