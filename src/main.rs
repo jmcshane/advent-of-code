@@ -8,55 +8,46 @@ use std::num;
 fn main() {
     let args: Vec<String> = env::args().collect();
     let filename = &args[1];
-    let max = args[2].parse::<usize>().unwrap();
-    let mut grid = Grid::from_vec(vec![0;max*max], max);
-    println!("Grid size is {:?}", grid.size());
-    for i in std::ops::RangeInclusive::new(122, 120) {
-        println!("I is {}", i);
-    }
+    let mut input : Vec<i32> = vec![0;7];
     if let Ok(lines) = read_lines(filename) {
         // Consumes the iterator, returns an (Optional) String
         for (_, line) in lines.enumerate() {
             if let Ok(input_line) = line {
-                let two_sides : Vec<&str>= input_line.split("->").collect();
-                let left = read_point(two_sides[0].trim());
-                let right = read_point(two_sides[1].trim());
-                if left.x == right.x {
-                    for i in gen_range(left.y, right.y) {
-                        grid[right.x][i] = grid[right.x][i] + 1;
-                    }
-                } else if left.y == right.y {
-                    for i in gen_range(left.x, right.x) {
-                        grid[i][right.y] = grid[i][right.y] + 1;
-                    }
-                } else if (i32::try_from(left.x).unwrap() - i32::try_from(right.x).unwrap()).abs() == (i32::try_from(left.y).unwrap() - i32::try_from(right.y).unwrap()).abs() {
-                    let diff = (i32::try_from(left.x).unwrap() - i32::try_from(right.x).unwrap()).abs();
-                    for i in 0..=diff {
-                        let index_add = usize::try_from(i).unwrap();
-                        let x_val = match left.x > right.x {
-                            true => left.x - index_add,
-                            false => left.x + index_add,
-                        };
-                        let y_val = match left.y > right.y {
-                            true => left.y - index_add,
-                            false => left.y + index_add,
-                        };
-                        grid[x_val][y_val] = grid[x_val][y_val] + 1;
-                    }
-
+                for val in input_line.split(",") {
+                    input[val.parse::<usize>().unwrap()]+= 1;
                 }
             }
         }
     }
-    let mut count = 0;
-    for i in 0..max {
-        for j in 0..max {
-            if grid[i][j] > 1 {
-                count = count + 1;
+    println!("{:?}", input);
+    // 0-> 1421
+    // 1-> 1401
+    // 2-> 1191
+    // 3-> 1154
+    // 4-> 1034
+    // 5-> 950
+    // 6 -> 905
+    let mut fish_counter = vec![0];
+    for i in 0..80 {
+        let mut new_fish = 0;
+        for regen in fish_counter.iter_mut() {
+            if *regen == 0 {
+                new_fish+= 1;
+                *regen = 6;
+            } else {
+                *regen = *regen - 1;
             }
         }
+        for _ in 0..new_fish {
+            fish_counter.push(8);
+        }
+        if i > 72 {
+            input[79-i] = input[79-i] * i32::try_from(fish_counter.len()).unwrap();
+            println!("there are {} fish on day {}", fish_counter.len(), i);
+        }
     }
-    println!("Avoid {} spaces", count);
+    println!("{:?}", input);
+    println!("{}", input.iter().sum::<i32>());
 }
 
 fn gen_range(first: usize, second: usize) -> std::ops::RangeInclusive<usize> {
