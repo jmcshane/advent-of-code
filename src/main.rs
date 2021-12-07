@@ -32,14 +32,17 @@ fn main() {
         }
     }
 
+    let mut completed_boards = 0;
     for called_number in input.split(",") {
         let mut complete = false;
         for i in 0..board_index {
             let has_won = boards[i].call_number(called_number.to_string());
             if has_won {
-                boards[i].print_win_output(called_number.to_string());
-                complete = true;
-                break;
+                completed_boards = completed_boards + 1;
+                if completed_boards == board_index {
+                    boards[i].print_win_output(called_number.to_string());
+                    complete = true
+                }
             }
         }
         if complete {

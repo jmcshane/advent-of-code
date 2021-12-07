@@ -3,11 +3,12 @@ pub struct Board {
     pub grid: Vec<String>,
     pub matched_indexes: Vec<i32>,
     add_index: usize,
+    pub already_complete: bool
 }
 
 impl Board {
     pub fn new() -> Board {
-        return Board{grid: vec!["".to_string(); 25], matched_indexes: vec![0; 25], add_index: 0};
+        return Board{grid: vec!["".to_string(); 25], matched_indexes: vec![0; 25], add_index: 0, already_complete: false};
     }
 
     pub fn add_line(&mut self, text: String) { 
@@ -22,14 +23,21 @@ impl Board {
     }
 
     pub fn call_number(&mut self, number: String) -> bool {
+        if self.already_complete {
+            return false;
+        }
         let possible_index = self.grid.iter().position(|r| r.to_string() == number);
         match possible_index {
             Some(index) => {
                 self.matched_indexes[index] = 1;
-                return check_win_condition(&self.matched_indexes);        
+                let result = check_win_condition(&self.matched_indexes);
+                if result {
+                    self.already_complete = true
+                }
+                return result
             }
             _ => return false,
-        }
+        };
     }
 
     pub fn print_win_output(&self, called_number: String) {
