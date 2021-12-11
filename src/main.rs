@@ -8,37 +8,35 @@ use std::num;
 fn main() {
     let args: Vec<String> = env::args().collect();
     let filename = &args[1];
-    let mut input : Vec<i64> = vec![0;7];
+    let mut input : Vec<usize> = vec![0;0];
     if let Ok(lines) = read_lines(filename) {
         // Consumes the iterator, returns an (Optional) String
         for (_, line) in lines.enumerate() {
             if let Ok(input_line) = line {
                 for val in input_line.split(",") {
-                    input[val.parse::<usize>().unwrap()]+= 1;
+                    input.push(val.parse::<usize>().unwrap());
                 }
             }
         }
     }
-    println!("{:?}", input);
-    // 0-> 1421
-    // 1-> 1401
-    // 2-> 1191
-    // 3-> 1154
-    // 4-> 1034
-    // 5-> 950
-    // 6 -> 905
-    let mut fish_counter = vec![0;9];
-    fish_counter[0] = 1;
-    for i in 0..256 {
-        fish_counter.rotate_left(1);
-        fish_counter[6] += fish_counter[8];
-        if i > 248 {
-            input[255-i] = input[255-i] * fish_counter.iter().sum::<i64>();
-            println!("there are {} fish on day {}", fish_counter.iter().sum::<i64>(), i);
+    calculate_fuel(&input);
+}
+
+fn calculate_fuel(input: &Vec<usize>) {
+    let mut min_fuel_cost : i64 = 0;
+    let mut current_fuel_cost : i64 = 0;
+    for i in 100..2000 {
+        for j in input.iter() {
+            let total_moves = ((i as i64) - (*j as i64)).abs();
+
+            current_fuel_cost += total_moves * (total_moves + 1) / 2
         }
+        if current_fuel_cost < min_fuel_cost || i == 100 {
+            min_fuel_cost = current_fuel_cost;
+        }
+        current_fuel_cost = 0;
     }
-    println!("{:?}", input);
-    println!("{}", input.iter().sum::<i64>());
+    println!("Min fuel cost is {}", min_fuel_cost)
 }
 
 fn gen_range(first: usize, second: usize) -> std::ops::RangeInclusive<usize> {
