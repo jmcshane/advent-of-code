@@ -19,25 +19,8 @@ fn main() {
             }
         }
     }
-    calculate_fuel(&input);
 }
 
-fn calculate_fuel(input: &Vec<usize>) {
-    let mut min_fuel_cost : i64 = 0;
-    let mut current_fuel_cost : i64 = 0;
-    for i in 100..2000 {
-        for j in input.iter() {
-            let total_moves = ((i as i64) - (*j as i64)).abs();
-
-            current_fuel_cost += total_moves * (total_moves + 1) / 2
-        }
-        if current_fuel_cost < min_fuel_cost || i == 100 {
-            min_fuel_cost = current_fuel_cost;
-        }
-        current_fuel_cost = 0;
-    }
-    println!("Min fuel cost is {}", min_fuel_cost)
-}
 
 fn gen_range(first: usize, second: usize) -> std::ops::RangeInclusive<usize> {
     if first > second {
@@ -47,15 +30,7 @@ fn gen_range(first: usize, second: usize) -> std::ops::RangeInclusive<usize> {
     }
 }
 
-struct Point {
-    x: usize,
-    y: usize
-}
 
-fn read_point(input: &str) -> Point {
-    let two_sides : Vec<&str>= input.split(",").collect();
-    return Point{x: two_sides[0].parse::<usize>().unwrap(), y: two_sides[1].parse::<usize>().unwrap()}
-}
 
 // The output is wrapped in a Result to allow matching on errors
 // Returns an Iterator to the Reader of the lines of the file.
