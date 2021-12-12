@@ -8,17 +8,29 @@ use std::num;
 fn main() {
     let args: Vec<String> = env::args().collect();
     let filename = &args[1];
-    let mut input : Vec<usize> = vec![0;0];
+    let mut counter: i32 = 0;
+    let mut input : Vec<&str> = Vec::new();
     if let Ok(lines) = read_lines(filename) {
         // Consumes the iterator, returns an (Optional) String
         for (_, line) in lines.enumerate() {
             if let Ok(input_line) = line {
-                for val in input_line.split(",") {
-                    input.push(val.parse::<usize>().unwrap());
-                }
+                counter += calculate_unique(input_line.split("|").collect::<Vec<&str>>()[1])
             }
         }
     }
+    println!("There are {} unique values", counter);
+}
+
+static UNIQUE_LENGTHS: &'static [usize] = &[2, 3, 4, 7];
+
+fn calculate_unique(input: &str) -> i32 {
+    let mut increment = 0;
+    for val in input.split(" ") {
+        if UNIQUE_LENGTHS.contains(&val.chars().count()) {
+            increment = increment + 1;
+        }
+    }
+    return increment;
 }
 
 
