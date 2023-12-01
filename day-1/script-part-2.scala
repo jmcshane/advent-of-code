@@ -21,17 +21,5 @@ def findFirstDigit(input:String) : Int = {
      }).toInt
 }
 
-def findLastDigit(input:String) : Int = {
-  input.foldRight("")((op : Char, str: String) => {
-     if (str.length > 0 && str.forall(Character.isDigit(_))) {
-          str
-     } else if (op.isDigit) {
-          op.toString
-     } else {
-          matchDigit(op + str)
-     }
-  }).toInt
-}
-
 val input = sc.textFile("aoc-1.txt")
-input.map(line => findFirstDigit(line) * 10 + findLastDigit(line)).collect().sum
+input.map(line => findFirstDigit(line) * 10 + findFirstDigit(line.reverse)).collect().sum
